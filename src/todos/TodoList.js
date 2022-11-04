@@ -2,10 +2,16 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import NewTodoForm from './NewTodoForm';
 import TodoListItem from './TodoListItem';
+import {
+    getTodos,
+    getTodosLoading,
+    getCompletedTodos,
+    getIncompleteTodos
+} from './selectors';
 import { loadTodos, removeTodoRequest, markTodoAsCompletedRequest } from './thunks';
 import './TodoList.css';
 
-const TodoList = ({ todos = [], onRemovePressed, onCompletePressed, isLoading, startLoadingTodos }) => {
+const TodoList = ({ completedTodos, incompletedTodos, onRemovePressed, onCompletePressed, isLoading, startLoadingTodos }) => {
     useEffect(() => {
         startLoadingTodos();
     }, [])
@@ -14,8 +20,16 @@ const TodoList = ({ todos = [], onRemovePressed, onCompletePressed, isLoading, s
     const content = (
         <div className="list-wrapper">
             <NewTodoForm />
+            <h3>Incomplete:</h3>
             {
-                todos.filter(todo => todo).map(todo => <TodoListItem 
+                incompletedTodos.map(todo => <TodoListItem 
+                    todo={todo}
+                    onRemovePressed={onRemovePressed}
+                    onCompletePressed={onCompletePressed} />)
+            }
+            <h3>Completed:</h3>
+            {
+                completedTodos.map(todo => <TodoListItem 
                     todo={todo}
                     onRemovePressed={onRemovePressed}
                     onCompletePressed={onCompletePressed} />)
@@ -26,8 +40,9 @@ const TodoList = ({ todos = [], onRemovePressed, onCompletePressed, isLoading, s
 }
 
 const mapStateToProps = state => ({
-    isLoading: state.isLoading,
-    todos: state.todos
+    isLoading: getTodosLoading(state),
+    completedTodos: getCompletedTodos(state),
+    incompletedTodos: getIncompleteTodos(state)
 });
 
 const mapDispatchToProps = dispatch => ({
